@@ -17,21 +17,36 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final TextEditingController _controller = TextEditingController();
 
   void showMessage(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Gumb je pritisnut!'),
-        duration: Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
+      SnackBar(
+        content: Text('Pozdrav ${_controller.text}'),
+        duration: Duration(seconds: 5),
+        behavior: SnackBarBehavior.fixed,
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      appBar: AppBar(title: const Text('Moja prva Flutter aplikacija')),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () => showMessage(context),
+          child: const Text('Pritisni me'),
+        ),
+      ),
+    );
   }
 }
