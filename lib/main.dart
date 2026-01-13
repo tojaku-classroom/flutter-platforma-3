@@ -72,6 +72,49 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 24),
             Text('Upisali ste $_name'),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => SecondScreen(name: _name),));
+              },
+              child: const Text('Idi na drugu stranicu'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SecondScreen extends StatelessWidget {
+  final String name;
+
+  const SecondScreen({super.key, required this.name});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Druga Stranica')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Dobrodošli na drugu stranicu!',
+              style: TextStyle(fontSize: 24),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              name.isEmpty ? 'Niste upisali ime' : 'Zdravo, $name!',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Nazad'),
+            ),
           ],
         ),
       ),
