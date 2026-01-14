@@ -25,15 +25,20 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final TextEditingController _controller = TextEditingController();
-  String _name = '';
+  final TextEditingController _number1 = TextEditingController();
+  final TextEditingController _number2 = TextEditingController();
+  bool dataOk = false;
 
   void showMessage(BuildContext context) {
     String message = '';
-    if (_controller.text.isEmpty) {
-      message = 'Molimo unesite ime';
+    if (_number1.text.isEmpty || _number2.text.isEmpty) {
+      message = 'Molimo unesite oba broja';
+    } else if (double.tryParse(_number1.text) == null ||
+        double.tryParse(_number2.text) == null) {
+      message = 'Molimo unesite valjane brojeve';
     } else {
-      message = 'Pozdrav ${_controller.text}';
+      dataOk = true;
+      message = 'Brojevi su ispravni';
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -54,28 +59,49 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
-              controller: _controller,
+              controller: _number1,
+              keyboardType: TextInputType.number,
               decoration: const InputDecoration(
-                hintText: 'Upišite svoje ime',
+                hintText: 'Unesite prvi broj',
                 border: OutlineInputBorder(),
               ),
-              onChanged: (value) {
-                setState(() {
-                  _name = value;
-                });
-              },
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _number2,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                hintText: 'Unesite drugi broj',
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => showMessage(context),
-              child: const Text('Pritisni me'),
+              child: const Text('Provjeri podatke'),
             ),
-            const SizedBox(height: 24),
-            Text('Upisali ste $_name'),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => SecondScreen(name: _name),));
+                if (!dataOk) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Provjerite podatke'),
+                      duration: Duration(seconds: 2),
+                      behavior: SnackBarBehavior.fixed,
+                    ),
+                  );
+                  return;
+                }
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SecondScreen(
+                      number1: double.parse(_number1.text),
+                      number2: double.parse(_number2.text),
+                    ),
+                  ),
+                );
               },
               child: const Text('Idi na drugu stranicu'),
             ),
@@ -87,12 +113,15 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class SecondScreen extends StatelessWidget {
-  final String name;
+  final double number1;
+  final double number2;
 
-  const SecondScreen({super.key, required this.name});
+  const SecondScreen({super.key, required this.number1, required this.number2});
 
   @override
   Widget build(BuildContext context) {
+    double sum = number1 + number2;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Druga Stranica')),
       body: Center(
@@ -100,12 +129,12 @@ class SecondScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
-              'Dobrodošli na drugu stranicu!',
+              'Rezultat',
               style: TextStyle(fontSize: 24),
             ),
             const SizedBox(height: 16),
             Text(
-              name.isEmpty ? 'Niste upisali ime' : 'Zdravo, $name!',
+              '$sum',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 24),
