@@ -93,6 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                   return;
                 }
+                dataOk = false;
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -128,10 +129,7 @@ class SecondScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              'Rezultat',
-              style: TextStyle(fontSize: 24),
-            ),
+            const Text('Rezultat', style: TextStyle(fontSize: 24)),
             const SizedBox(height: 16),
             Text(
               '$sum',
