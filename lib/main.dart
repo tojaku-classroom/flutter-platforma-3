@@ -25,26 +25,30 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final _formKey = GlobalKey<FormState>();
+
   final TextEditingController _number1 = TextEditingController();
   final TextEditingController _number2 = TextEditingController();
+
   bool dataOk = false;
 
-  void showMessage(BuildContext context) {
-    String message = '';
-    if (_number1.text.isEmpty || _number2.text.isEmpty) {
-      message = 'Molimo unesite oba broja';
-    } else if (double.tryParse(_number1.text) == null ||
-        double.tryParse(_number2.text) == null) {
-      message = 'Molimo unesite valjane brojeve';
-    } else {
-      dataOk = true;
-      message = 'Brojevi su ispravni';
+  String? _validateNumber(String? value) {
+    if (value == null || value.isEmpty) {
+      // Test 1
+      return 'Molimo unesite broj';
     }
+    if (double.tryParse(value) == null) {
+      // Test 2
+      return 'Molimo unesite ispravan broj';
+    }
+    return null; // Svi testovi uspješni
+  }
 
+  void showMessage(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.fixed,
       ),
     );
@@ -55,58 +59,62 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Moja prva Flutter aplikacija')),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: _number1,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                hintText: 'Unesite prvi broj',
-                border: OutlineInputBorder(),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextFormField(
+                controller: _number1,
+                keyboardType: TextInputType.number,
+                validator: _validateNumber,
+                decoration: const InputDecoration(
+                  hintText: 'Unesite prvi broj',
+                  border: OutlineInputBorder(),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _number2,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                hintText: 'Unesite drugi broj',
-                border: OutlineInputBorder(),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _number2,
+                keyboardType: TextInputType.number,
+                validator: _validateNumber,
+                decoration: const InputDecoration(
+                  hintText: 'Unesite drugi broj',
+                  border: OutlineInputBorder(),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => showMessage(context),
-              child: const Text('Provjeri podatke'),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                if (!dataOk) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Provjerite podatke'),
-                      duration: Duration(seconds: 2),
-                      behavior: SnackBarBehavior.fixed,
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    dataOk = true;
+                    showMessage(context, 'Brojevi su ispravni');
+                  }
+                },
+                child: const Text('Provjeri podatke'),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () {
+                  if (!dataOk) {
+                    showMessage(context, 'Prethodno provjerite podatke');
+                    return;
+                  }
+                  dataOk = false;
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SecondScreen(
+                        number1: double.parse(_number1.text),
+                        number2: double.parse(_number2.text),
+                      ),
                     ),
                   );
-                  return;
-                }
-                dataOk = false;
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SecondScreen(
-                      number1: double.parse(_number1.text),
-                      number2: double.parse(_number2.text),
-                    ),
-                  ),
-                );
-              },
-              child: const Text('Idi na drugu stranicu'),
-            ),
-          ],
+                },
+                child: const Text('Idi na drugu stranicu'),
+              ),
+            ],
+          ),
         ),
       ),
     );
