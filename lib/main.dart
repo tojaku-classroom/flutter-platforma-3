@@ -84,21 +84,34 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SecondScreen(
-                          number1: double.parse(_number1.text),
-                          number2: double.parse(_number2.text),
-                        ),
-                      ),
-                    );
-                  }
-                },
-                child: const Text('Pošalji'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SecondScreen(
+                              number1: double.parse(_number1.text),
+                              number2: double.parse(_number2.text),
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                    child: const Text('Pošalji'),
+                  ),
+                  const SizedBox(width: 16),
+                  OutlinedButton(
+                    onPressed: () {
+                      _formKey.currentState?.reset();
+                      showMessage(context, 'Obrazac je očišćen');
+                    },
+                    child: const Text('Očisti'),
+                  ),
+                ],
               ),
             ],
           ),
