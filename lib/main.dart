@@ -127,10 +127,23 @@ class SecondScreen extends StatelessWidget {
 
   const SecondScreen({super.key, required this.number1, required this.number2});
 
+  double get sum => number1 + number2;
+
+  Widget _buildResultItem(String label, double value) {
+    return Column(
+      children: [
+        Text(label, style: const TextStyle(fontSize: 18, color: Colors.grey)),
+        const SizedBox(height: 8),
+        Text(
+          '$value',
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    double sum = number1 + number2;
-
     return Scaffold(
       appBar: AppBar(title: const Text('Druga Stranica')),
       body: Center(
@@ -138,12 +151,25 @@ class SecondScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text('Rezultat', style: TextStyle(fontSize: 24)),
-            const SizedBox(height: 16),
-            Text(
-              '$sum',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            const SizedBox(height: 32),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildResultItem('Broj 1', number1),
+                const SizedBox(width: 48),
+                _buildResultItem('Broj 2', number2),
+              ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.blue, width: 2),
+                borderRadius: BorderRadius.circular(8)
+              ),
+              child: _buildResultItem('Zbroj', sum),
+            ),
+            const SizedBox(height: 32),
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
