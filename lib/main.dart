@@ -87,31 +87,18 @@ class _HomeScreenState extends State<HomeScreen> {
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    dataOk = true;
-                    showMessage(context, 'Brojevi su ispravni');
-                  }
-                },
-                child: const Text('Provjeri podatke'),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () {
-                  if (!dataOk) {
-                    showMessage(context, 'Prethodno provjerite podatke');
-                    return;
-                  }
-                  dataOk = false;
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SecondScreen(
-                        number1: double.parse(_number1.text),
-                        number2: double.parse(_number2.text),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SecondScreen(
+                          number1: double.parse(_number1.text),
+                          number2: double.parse(_number2.text),
+                        ),
                       ),
-                    ),
-                  );
+                    );
+                  }
                 },
-                child: const Text('Idi na drugu stranicu'),
+                child: const Text('Pošalji'),
               ),
             ],
           ),
