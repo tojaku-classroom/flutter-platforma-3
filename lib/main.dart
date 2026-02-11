@@ -121,13 +121,33 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class SecondScreen extends StatelessWidget {
+class SecondScreen extends StatefulWidget {
   final double number1;
   final double number2;
 
   const SecondScreen({super.key, required this.number1, required this.number2});
 
-  double get sum => number1 + number2;
+  @override
+  State<SecondScreen> createState() => _SecondScreenState();
+}
+
+class _SecondScreenState extends State<SecondScreen> {
+  String _selectedOperation = 'Zbrajanje';
+
+  double _calculateResult() {
+    switch (_selectedOperation) {
+      case 'Zbrajanje':
+        return widget.number1 + widget.number2;
+      case 'Oduzimanje':
+        return widget.number1 - widget.number2;
+      case 'Množenje':
+        return widget.number1 * widget.number2;
+      case 'Dijeljenje':
+        return widget.number2 != 0 ? widget.number1 / widget.number2 : 0;
+      default:
+        return widget.number1 + widget.number2;
+    }
+  }
 
   Widget _buildResultItem(String label, double value) {
     return Column(
@@ -135,7 +155,7 @@ class SecondScreen extends StatelessWidget {
         Text(label, style: const TextStyle(fontSize: 18, color: Colors.grey)),
         const SizedBox(height: 8),
         Text(
-          '$value',
+          value.toStringAsFixed(2),
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ],
@@ -155,19 +175,41 @@ class SecondScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildResultItem('Broj 1', number1),
+                _buildResultItem('Broj 1', widget.number1),
                 const SizedBox(width: 48),
-                _buildResultItem('Broj 2', number2),
+                _buildResultItem('Broj 2', widget.number2),
               ],
+            ),
+            const SizedBox(height: 32),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: DropdownButton<String>(
+                isExpanded: true,
+                value: _selectedOperation,
+                items: const [
+                  DropdownMenuItem(value: 'Zbrajanje', child: Text('Zbroj')),
+                  DropdownMenuItem(value: 'Oduzimanje', child: Text('Razlika')),
+                  DropdownMenuItem(value: 'Množenje', child: Text('Umnožak')),
+                  DropdownMenuItem(
+                    value: 'Dijeljenje',
+                    child: Text('Količnik'),
+                  ),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _selectedOperation = value ?? 'Zbrajanje';
+                  });
+                },
+              ),
             ),
             const SizedBox(height: 32),
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.blue, width: 2),
-                borderRadius: BorderRadius.circular(8)
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: _buildResultItem('Zbroj', sum),
+              child: _buildResultItem(_selectedOperation, _calculateResult()),
             ),
             const SizedBox(height: 32),
             ElevatedButton(
