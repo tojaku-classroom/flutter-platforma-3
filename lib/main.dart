@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+List<String> calculationHistory = [];
+
 void main() {
   runApp(const MyApp());
 }
@@ -111,6 +113,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                     child: const Text('Očisti'),
                   ),
+                  const SizedBox(width: 16),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const HistoryScreen(),
+                        ),
+                      );
+                    },
+                    label: const Text('Povijest izračuna'),
+                    icon: const Icon(Icons.history),
+                  ),
                 ],
               ),
             ],
@@ -135,6 +150,9 @@ class _SecondScreenState extends State<SecondScreen> {
   String _selectedOperation = 'Zbrajanje';
 
   double _calculateResult() {
+    final entry = '${widget.number1}, ${widget.number2}, $_selectedOperation';
+    calculationHistory.add(entry);
+
     switch (_selectedOperation) {
       case 'Zbrajanje':
         return widget.number1 + widget.number2;
@@ -221,6 +239,50 @@ class _SecondScreenState extends State<SecondScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class HistoryScreen extends StatelessWidget {
+  const HistoryScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Povijest izračuna')),
+      body: calculationHistory.isEmpty
+          ? const Center(
+              child: Text(
+                'Trenutno nema izračuna u povijest',
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
+            )
+          : ListView.builder(
+              itemCount: calculationHistory.length,
+              itemBuilder: (context, index) {
+                final reversedIndex = calculationHistory.length - 1 - index;
+                return Card(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: ListTile(
+                    leading: CircleAvatar(child: Text('${reversedIndex + 1}')),
+                    title: Text(calculationHistory[reversedIndex]),
+                    trailing: const Icon(Icons.calculate),
+                  ),
+                );
+              },
+            ),
+      floatingActionButton: calculationHistory.isNotEmpty
+          ? FloatingActionButton(
+              onPressed: () {
+                calculationHistory.clear();
+                (context as Element).markNeedsBuild();
+              },
+              child: const Icon(Icons.delete),
+            )
+          : null,
     );
   }
 }
