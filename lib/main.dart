@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-
-List<String> calculationHistory = [];
+import 'package:provider/provider.dart';
+import 'calculator_provider.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized(); // Potrebno zbog upotrebe asinkronih operacija
   runApp(const MyApp());
 }
 
@@ -11,10 +12,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Moja prva Flutter aplikacija',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const HomeScreen(),
+    return ChangeNotifierProvider(
+      create: (context) {
+        final provider = CalculatorProvider();
+        provider.loadHistory();
+        return provider;
+      },
+      child: MaterialApp(
+        title: 'Moja prva Flutter aplikacija',
+        theme: ThemeData(primarySwatch: Colors.blue),
+        home: const HomeScreen(),
+      ),
     );
   }
 }
@@ -150,8 +158,10 @@ class _SecondScreenState extends State<SecondScreen> {
   String _selectedOperation = 'Zbrajanje';
 
   double _calculateResult() {
-    final entry = '${widget.number1}, ${widget.number2}, $_selectedOperation';
-    calculationHistory.add(entry);
+    // Dohvaćanje našeg providera bez pretplate na promjene
+    final provider = Provider.of<CalculatorProvider>(context, listen: false);
+    // Dodavanje novog izračuna u povijest
+    provider.addCalculation(widget.number1, widget.number2, _selectedOperation);
 
     switch (_selectedOperation) {
       case 'Zbrajanje':
@@ -250,39 +260,45 @@ class HistoryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Povijest izračuna')),
-      body: calculationHistory.isEmpty
-          ? const Center(
+      body: Consumer<CalculatorProvider>(
+        builder: (context, value, child) {
+          if (value.isEmpty) {
+            return const Center(
               child: Text(
-                'Trenutno nema izračuna u povijest',
+                'Trenutno nema izračuna u povijesti',
                 style: TextStyle(fontSize: 18, color: Colors.grey),
               ),
-            )
-          : ListView.builder(
-              itemCount: calculationHistory.length,
-              itemBuilder: (context, index) {
-                final reversedIndex = calculationHistory.length - 1 - index;
-                return Card(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  child: ListTile(
-                    leading: CircleAvatar(child: Text('${reversedIndex + 1}')),
-                    title: Text(calculationHistory[reversedIndex]),
-                    trailing: const Icon(Icons.calculate),
-                  ),
-                );
-              },
-            ),
-      floatingActionButton: calculationHistory.isNotEmpty
-          ? FloatingActionButton(
-              onPressed: () {
-                calculationHistory.clear();
-                (context as Element).markNeedsBuild();
-              },
-              child: const Icon(Icons.delete),
-            )
-          : null,
+            );
+          }
+
+          return ListView.builder(
+            itemCount: value.count,
+            itemBuilder: (context, index) {
+              final reversedIndex = value.count - 1 - index;
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: ListTile(
+                  leading: CircleAvatar(child: Text('${reversedIndex + 1}')),
+                  title: Text(value.history[reversedIndex]),
+                  trailing: const Icon(Icons.calculate),
+                ),
+              );
+            },
+          );
+        },
+      ),
+      floatingActionButton: Consumer<CalculatorProvider>(
+        builder: (context, value, child) {
+          if (value.isEmpty) return const SizedBox.shrink();
+
+          return FloatingActionButton(
+            onPressed: () {
+              value.clearHistory();
+            },
+            child: const Icon(Icons.delete),
+          );
+        },
+      ),
     );
   }
 }
