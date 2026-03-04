@@ -25,7 +25,34 @@ class CalculatorProvider extends ChangeNotifier {
     String operation,
   ) async {
     // Upis u povijest (radna memorija)
-    final entry = '$num1, $num2, $operation';
+
+    double result;
+    String operatorSymbol;
+
+    switch (operation) {
+      case 'Zbrajanje':
+        result = num1 + num2;
+        operatorSymbol = '+';
+        break;
+      case 'Oduzimanje':
+        result = num1 - num2;
+        operatorSymbol = '-';
+        break;
+      case 'Množenje':
+        result = num1 * num2;
+        operatorSymbol = '×';
+        break;
+      case 'Dijeljenje':
+        result = num1 / num2;
+        operatorSymbol = '÷';
+        break;
+      default:
+        result = num1 + num2;
+        operatorSymbol = '+';
+    }
+
+    final entry =
+        '${num1.toStringAsFixed(2)} $operatorSymbol ${num2.toStringAsFixed(2)} = ${result.toStringAsFixed(2)}';
     _history.add(entry);
 
     // Upis na 'disk' (trajnu memoriju), tj. Shared Preferences
@@ -42,6 +69,17 @@ class CalculatorProvider extends ChangeNotifier {
     prefs.remove(_storageKey); // Brisanje povjesti u trajnoj memoriji
 
     notifyListeners(); // Obavijest svima
+  }
+
+  Future<void> deleteCalculation(int index) async {
+    if (index >= 0 && index < _history.length) {
+      _history.removeAt(index);
+
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setStringList(_storageKey, _history);
+
+      notifyListeners();
+    }
   }
 
   // Pomoćne "stvari"

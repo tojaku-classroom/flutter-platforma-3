@@ -256,6 +256,46 @@ class _SecondScreenState extends State<SecondScreen> {
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
 
+  void _showItemDeleteDialog(
+    BuildContext context,
+    CalculatorProvider provider,
+    int index,
+  ) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Brisanje izračuna'),
+          content: const Text(
+            'Jeste li sigurni da želite obrisat ovaj izračun?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+              child: const Text('Odustani'),
+            ),
+            TextButton(
+              onPressed: () {
+                provider.deleteCalculation(index);
+                Navigator.of(dialogContext).pop();
+                ScaffoldMessenger.of(dialogContext).showSnackBar(
+                  const SnackBar(
+                    content: Text('Izračun je obrisan'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text('Obriši'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -279,8 +319,19 @@ class HistoryScreen extends StatelessWidget {
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: ListTile(
                   leading: CircleAvatar(child: Text('${reversedIndex + 1}')),
-                  title: Text(value.history[reversedIndex]),
-                  trailing: const Icon(Icons.calculate),
+                  title: Text(
+                    value.history[reversedIndex],
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  trailing: IconButton(
+                    onPressed: () {
+                      _showItemDeleteDialog(context, value, reversedIndex);
+                    },
+                    icon: const Icon(Icons.delete_outlined, color: Colors.red),
+                  ),
                 ),
               );
             },
