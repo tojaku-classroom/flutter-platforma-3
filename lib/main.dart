@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
       create: (context) {
         final provider = CalculatorProvider();
         provider.loadHistory();
+        provider.loadTemplates(); // Paralelno učitavamo i predloške izračuna
         return provider;
       },
       child: MaterialApp(
@@ -63,6 +64,23 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  /*Future<void> _openTemplates() async {
+    final template = await Navigator.push<CalculationTemplate>(
+        context,
+        MaterialPageRoute(builder: (context) => const TemplateScreen())
+    );
+
+    if (template == null) return;
+
+    _number1.text = template.num1.toString();
+    _number2.text = template.num2.toString();
+
+    if (!mounted) return;
+
+
+
+  }*/
 
   @override
   Widget build(BuildContext context) {
