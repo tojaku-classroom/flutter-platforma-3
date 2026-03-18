@@ -65,10 +65,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /*Future<void> _openTemplates() async {
+  Future<void> _openTemplates() async {
     final template = await Navigator.push<CalculationTemplate>(
-        context,
-        MaterialPageRoute(builder: (context) => const TemplateScreen())
+      context,
+      MaterialPageRoute(builder: (context) => const TemplatesScreen()),
     );
 
     if (template == null) return;
@@ -78,9 +78,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (!mounted) return;
 
-
-
-  }*/
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SecondScreen(
+          number1: template.num1,
+          number2: template.num2,
+          initialOperation: template.operation,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -152,6 +160,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     label: const Text('Povijest izračuna'),
                     icon: const Icon(Icons.history),
                   ),
+                  const SizedBox(width: 16),
+                  OutlinedButton.icon(
+                    onPressed: _openTemplates,
+                    label: const Text('Predlošci'),
+                    icon: const Icon(Icons.bookmark_outline),
+                  ),
                 ],
               ),
             ],
@@ -165,15 +179,27 @@ class _HomeScreenState extends State<HomeScreen> {
 class SecondScreen extends StatefulWidget {
   final double number1;
   final double number2;
+  final String initialOperation;
 
-  const SecondScreen({super.key, required this.number1, required this.number2});
+  const SecondScreen({
+    super.key,
+    required this.number1,
+    required this.number2,
+    this.initialOperation = 'Zbrajanje',
+  });
 
   @override
   State<SecondScreen> createState() => _SecondScreenState();
 }
 
 class _SecondScreenState extends State<SecondScreen> {
-  String _selectedOperation = 'Zbrajanje';
+  late String _selectedOperation = 'Zbrajanje';
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedOperation = widget.initialOperation;
+  }
 
   double _calculateResult() {
     // Dohvaćanje našeg providera bez pretplate na promjene
@@ -263,6 +289,27 @@ class _SecondScreenState extends State<SecondScreen> {
                 Navigator.pop(context);
               },
               child: const Text('Nazad'),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: () async {
+                final provider = Provider.of<CalculatorProvider>(
+                  context,
+                  listen: false,
+                );
+                await provider.addTemplate(
+                  widget.number1,
+                  widget.number2,
+                  _selectedOperation,
+                );
+
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Predložak je spremljen')),
+                );
+              },
+              label: const Text('Spremi kao predložak'),
+              icon: const Icon(Icons.bookmark_add_outlined),
             ),
           ],
         ),
@@ -365,6 +412,67 @@ class HistoryScreen extends StatelessWidget {
               value.clearHistory();
             },
             child: const Icon(Icons.delete),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class TemplatesScreen extends StatelessWidget {
+  const TemplatesScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Predlošci')),
+      body: Consumer<CalculatorProvider>(
+        builder: (context, value, child) {
+          if (value.templatesIsEmpty) {
+            return const Center(
+              child: Text(
+                'Trenutno nema spremljenih predložaka',
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
+            );
+          }
+
+          return ListView.builder(
+            itemCount: value.templatesCount,
+            itemBuilder: (context, index) {
+              final reversedIndex = value.templatesCount - 1 - index;
+              final template = value.templates[reversedIndex];
+
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: ListTile(
+                  leading: const Icon(Icons.bookmark_outline),
+                  title: Text(template.displayLabel),
+                  subtitle: Text('Operacija: ${template.operation}'),
+                  onTap: () {
+                    Navigator.pop(context, template);
+                  },
+                  trailing: IconButton(
+                    onPressed: () {
+                      value.deleteTemplate(reversedIndex);
+                    },
+                    icon: const Icon(Icons.delete_outline, color: Colors.red),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+      floatingActionButton: Consumer<CalculatorProvider>(
+        builder: (context, value, child) {
+          if (value.templatesIsEmpty) return const SizedBox.shrink();
+
+          return FloatingActionButton(
+            onPressed: () {
+              value.clearTemplates();
+            },
+            child: const Icon(Icons.delete_sweep_outlined),
           );
         },
       ),

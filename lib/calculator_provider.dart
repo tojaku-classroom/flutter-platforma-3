@@ -15,41 +15,41 @@ class CalculationTemplate {
   });
 
   Map<String, dynamic> toJson() {
-    return {"num1": num1, "num2": num2, "operation": operation};
+    return {'num1': num1, 'num2': num2, 'operation': operation};
   }
 
   factory CalculationTemplate.fromJson(Map<String, dynamic> json) {
     return CalculationTemplate(
-      num1: (json["num1"] as num?)?.toDouble() ?? 0,
-      num2: (json["num2"] as num?)?.toDouble() ?? 0,
-      operation: json["operation"] as String? ?? "Zbrajanje",
+      num1: (json['num1'] as num?)?.toDouble() ?? 0,
+      num2: (json['num2'] as num?)?.toDouble() ?? 0,
+      operation: json['operation'] as String? ?? 'Zbrajanje',
     );
   }
 
   String get displayLabel {
     String operatorSymbol;
     switch (operation) {
-      case "Zbrajanje":
-        operatorSymbol = "+";
+      case 'Zbrajanje':
+        operatorSymbol = '+';
         break;
 
-      case "Oduzimanje":
-        operatorSymbol = "-";
+      case 'Oduzimanje':
+        operatorSymbol = '-';
         break;
 
-      case "Množenje":
-        operatorSymbol = "×";
+      case 'Množenje':
+        operatorSymbol = '×';
         break;
 
-      case "Dijeljenje":
-        operatorSymbol = "/";
+      case 'Dijeljenje':
+        operatorSymbol = '/';
         break;
 
       default:
-        operatorSymbol = "+";
+        operatorSymbol = '+';
     }
 
-    return "${num1.toStringAsFixed(2)} $operatorSymbol ${num2.toStringAsFixed(2)}";
+    return '${num1.toStringAsFixed(2)} $operatorSymbol ${num2.toStringAsFixed(2)}';
   }
 }
 
@@ -172,7 +172,7 @@ class CalculatorProvider extends ChangeNotifier {
   Future<void> _saveTemplates() async {
     final prefs = await SharedPreferences.getInstance();
     // U sljedećoj liniji, pretvaramo listu predložaka izračuna prvo u JSON objekte, nakon toga
-    // JSON objekte "enkodiramo" u JSON stringove, te ih onda spremamo kao stringove na disk
+    // JSON objekte 'enkodiramo' u JSON stringove, te ih onda spremamo kao stringove na disk
     // koristeći SharedPreferences
     final rawTemplates = _templates.map((t) => jsonEncode(t.toJson())).toList();
     await prefs.setStringList(_templateStorageKey, rawTemplates);
@@ -205,7 +205,7 @@ class CalculatorProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Pomoćne "stvari"
+  // Pomoćne 'stvari'
   bool get isEmpty => _history.isEmpty;
   int get count => _history.length;
   List<CalculationTemplate> get templates => _templates;
