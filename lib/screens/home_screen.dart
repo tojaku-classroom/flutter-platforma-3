@@ -31,7 +31,51 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: entries.isEmpty ? const Placeholder() : const Placeholder(),
+      body: entries.isEmpty
+          ? const Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.book_outlined, size: 64, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text(
+                    'Nema zapisanih unosa',
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
+                  ),
+                ],
+              ),
+            )
+          : ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemBuilder: (context, index) {
+                final entry = entries[index];
+                return Card(
+                  child: ListTile(
+                    title: Text(
+                      entry.title,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    subtitle: Text(_formatDate(entry.createdAt)),
+                    trailing: IconButton(
+                      onPressed: () =>
+                          context.read<JournalProvider>().deleteEntry(entry.id),
+                      icon: const Icon(Icons.delete_outline, color: Colors.red),
+                    ),
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      '/entry',
+                      arguments: entry,
+                    ),
+                  ),
+                );
+              },
+              separatorBuilder: (_, _) => const SizedBox(height: 8),
+              itemCount: entries.length,
+            ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.pushNamed(context, '/new-entry'),
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
